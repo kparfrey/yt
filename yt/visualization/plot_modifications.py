@@ -2304,7 +2304,7 @@ class LineIntegralConvolutionCallback(PlotCallback):
     _type_name = "line_integral_convolution"
     _supported_geometries = ("cartesian", "spectral_cube")
     def __init__(self, field_x, field_y, texture=None, kernellen=50.,
-                 lim=(0.5,0.6), cmap='binary', alpha=0.8, const_alpha=False):
+                 lim=(0.5,0.6), cmap='binary', alpha=0.8, const_alpha=False, auto_norm=True):
         PlotCallback.__init__(self)
         self.field_x = field_x
         self.field_y = field_y
@@ -2314,6 +2314,7 @@ class LineIntegralConvolutionCallback(PlotCallback):
         self.cmap = cmap
         self.alpha = alpha
         self.const_alpha = const_alpha
+        self.auto_norm = auto_norm
 
     def __call__(self, plot):
         from matplotlib import cm
@@ -2352,7 +2353,12 @@ class LineIntegralConvolutionCallback(PlotCallback):
         kernel = kernel.astype(np.double)
 
         lic_data = line_integral_convolution_2d(vectors,self.texture,kernel)
-        lic_data = lic_data / lic_data.max()
+
+        print "LIC data min and max: ", lic_data.min(), lic_data.max()
+
+        if self.auto_norm is True:
+            lic_data = lic_data / lic_data.max()
+        
         lic_data_clip = np.clip(lic_data,self.lim[0],self.lim[1])
 
         if self.const_alpha:
